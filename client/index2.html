@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LLM Flow - Document Analyzer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body style="font-family: sans-serif; text-align: center; padding: 40px;">
+  <h1>📄 LLM Flow</h1>
+  <p>Upload a documentation file to analyze its sinks, sources, and sanitizers</p>
+
+  <form id="uploadForm">
+    <input type="file" id="fileInput" name="file" required />
+    <button type="submit">Upload & Analyze</button>
+  </form>
+
+  <div id="status" style="margin-top: 20px; color: blue;"></div>
+  <pre id="output" style="margin-top: 20px; text-align: left; white-space: pre-wrap;"></pre>
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    const status = document.getElementById("status");
+    const output = document.getElementById("output");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const file = document.getElementById("fileInput").files[0];
+      if (!file) return alert("Please choose a file.");
+
+      status.textContent = "⏳ Uploading and analyzing...";
+      output.textContent = "";
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await fetch("/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          status.textContent = "❌ Error: Upload failed.";
+          return;
+        }
+
+        const data = await response.json();
+        status.textContent = "✅ Analysis complete!";
+        output.textContent = data.response || "No response received.";
+      } catch (err) {
+        status.textContent = "⚠️ Something went wrong.";
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

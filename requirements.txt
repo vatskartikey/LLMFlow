@@ -1,0 +1,7 @@
+# Python setup
+cd backend
+pip install flask fitz python-docx
+
+# Node setup
+npm init -y
+npm install puter-js

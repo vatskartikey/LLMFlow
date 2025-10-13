@@ -1,12 +1,25 @@
+// backend/run_puter.js
+import fs from "fs";
 import puter from "puter-js";
 
+// Get text file path from Python subprocess
 const args = process.argv.slice(2);
-const inputText = args.join(" ");
-const prompt = `Analyze this documentation and classify errors into:
-1. Source
-2. Sink
-3. Sanitizer
-Also describe potential issues.\n\nDocument:\n${inputText}`;
+const filePath = args[0];
 
-const response = await puter.ai.chat(prompt, { model: "gpt-5-nano" });
-console.log(response.output_text);
+// Read text content
+const text = fs.readFileSync(filePath, "utf8");
+
+(async () => {
+  try {
+    // Run AI query
+    const response = await puter.ai.chat(
+      `Classify the following documentation into Sink, Source, or Sanitizer issues and describe possible vulnerabilities:\n\n${text}`,
+      { model: "gpt-5-nano" }
+    );
+
+    // Print it — VERY important!
+    console.log(response);
+  } catch (err) {
+    console.error("Error in run_puter.js:", err);
+  }
+})();

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Puter JS v2 Demo</title>
+  <script src="https://js.puter.com/v2/"></script>
+</head>
+<body>
+<h1>Puter JS v2 Demo</h1>
+
+<script>
+(async () => {
+  try {
+    // The global object is "puter"
+    // You must provide an API token if required
+    const response = await puter.ai.chat(
+      "Classify the following documentation into Sink, Source, or Sanitizer issues.",
+      { model: "gpt-5-nano" }
+    );
+
+    console.log("AI Response:", response);
+  } catch (err) {
+    console.error("Error using Puter.js:", err);
+  }
+})();
+</script>
+</body>
+</html>
