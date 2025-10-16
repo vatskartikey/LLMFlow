@@ -1,29 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Puter JS v2 Demo</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LLM Flow - Document Analyzer</title>
   <script src="https://js.puter.com/v2/"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px;
+      background: #fafafa;
+    }
+    button {
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #007bff;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #status {
+      margin-top: 20px;
+      color: blue;
+      font-weight: bold;
+    }
+    pre {
+      margin-top: 20px;
+      text-align: left;
+      white-space: pre-wrap;
+      background: #f4f4f4;
+      padding: 15px;
+      border-radius: 8px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
 </head>
 <body>
-<h1>Puter JS v2 Demo</h1>
+  <h1>📄 LLM Flow</h1>
+  <p>Upload a documentation file to analyze its Sinks, Sources, and Sanitizers.</p>
+
+  <form id="uploadForm">
+    <input type="file" id="fileInput" name="file" required />
+    <button type="submit">Analyze with AI</button>
+  </form>
+
+  <div id="status"></div>
+  <pre id="output"></pre>
 
 <script>
-(async () => {
-  try {
-    // The global object is "puter"
-    // You must provide an API token if required
-    const response = await puter.ai.chat(
-      "Classify the following documentation into Sink, Source, or Sanitizer issues.",
-      { model: "gpt-5-nano" }
-    );
+  const form = document.getElementById("uploadForm");
+  const status = document.getElementById("status");
+  const output = document.getElementById("output");
 
-    console.log("AI Response:", response);
-  } catch (err) {
-    console.error("Error using Puter.js:", err);
-  }
-})();
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const file = document.getElementById("fileInput").files[0];
+    if (!file) return alert("Please choose a file first.");
+
+    status.textContent = "⏳ Reading file and sending to AI...";
+    output.textContent = "";
+
+    try {
+      // Read file as text
+      const text = await file.text();
+
+      // Build the prompt for AI
+      const prompt = `
+You are a static analysis assistant.
+Analyze the following documentation and classify lines as Sink, Source, or Sanitizer:
+----------------------------
+${text}
+      `;
+
+      // Send to Puter.js AI
+      const response = await puter.ai.chat(prompt, { model: "gpt-5-nano" });
+
+      console.log("Full Response:", response); // inspect structure in console
+
+      // ✅ Extract AI message content safely
+      let message = "";
+
+      if (response?.message?.content) {
+        message = response.message.content;
+      } else if (response?.content) {
+        message = response.content;
+      } else {
+        message = JSON.stringify(response, null, 2);
+      }
+
+      // ✅ Display message
+      status.textContent = "✅ Analysis complete!";
+      output.textContent = typeof message === "string" ? message.trim() : JSON.stringify(message, null, 2);
+    } catch (err) {
+      console.error("Error using Puter.js:", err);
+      status.textContent = "⚠️ Something went wrong.";
+      output.textContent = err.message || "Unknown error.";
+    }
+  });
 </script>
+
+
+
 </body>
 </html>
